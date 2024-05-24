@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@babylonjs/core": "^7.7.1",
+    "@babylonjs/inspector": "^7.7.1"
+  },
+  "dependencies": {
+    "vite": "^5.2.11"
+  }
+}
