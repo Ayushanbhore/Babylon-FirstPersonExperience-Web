@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple First Person Game</title>
+    <style>
+        canvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+            outline: none;
+            display: block;
+            cursor: none; /* Hide mouse cursor */
+        }
+
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 2px;
+            background-color: white;
+            z-index: 999;
+        }
+
+        #crosshair.green {
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <div id="crosshair"></div>
+
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var canvas = document.getElementById("renderCanvas");
+            var engine = new BABYLON.Engine(canvas, true);
+
+            var createScene = function () {
+                var scene = new BABYLON.Scene(engine);
+                var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 5, -10), scene);
+                camera.setTarget(BABYLON.Vector3.Zero());
+
+                var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+                light.intensity = 0.7;
+
+                // Enable collision control for the camera
+                camera.checkCollisions = true;
+                camera.applyGravity = true;
+
+                // Add collision control for the ground
+                var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
+                ground.checkCollisions = true;
+
+                // Add some basic obstacles
+                var box1 = BABYLON.MeshBuilder.CreateBox("box1", { size: 2 }, scene);
+                box1.position = new BABYLON.Vector3(2, 1, 2);
+                box1.checkCollisions = true;
+
+                var box2 = BABYLON.MeshBuilder.CreateBox("box2", { size: 2 }, scene);
+                box2.position = new BABYLON.Vector3(-2, 1, -2);
+                box2.checkCollisions = true;
+
+                var box3 = BABYLON.MeshBuilder.CreateBox("box3", { size: 2 }, scene);
+                box3.position = new BABYLON.Vector3(2, 1, -2);
+                box3.checkCollisions = true;
+
+                var box4 = BABYLON.MeshBuilder.CreateBox("box4", { size: 2 }, scene);
+                box4.position = new BABYLON.Vector3(-2, 1, 2);
+                box4.checkCollisions = true;
+
+                return scene;
+            };
+
+            var scene = createScene();
+
+            var crosshair = document.getElementById("crosshair");
+
+            engine.runRenderLoop(function () {
+                scene.render();
+
+                // Check for intersection with obstacles
+                var pickResult = scene.pick(scene.pointerX, scene.pointerY);
+                if (pickResult.hit) {
+                    crosshair.classList.add("green");
+                } else {
+                    crosshair.classList.remove("green");
+                }
+            });
+
+            window.addEventListener("resize", function () {
+                engine.resize();
+            });
+
+            // Detach camera control
+            scene.activeCamera.detachControl(canvas);
+
+            // Mouse look around
+            var pointerLockChange = function () {
+                if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas || document.webkitPointerLockElement === canvas) {
+                    scene.activeCamera.attachControl(canvas, true);
+                } else {
+                    scene.activeCamera.detachControl(canvas);
+                }
+            };
+
+            document.addEventListener("pointerlockchange", pointerLockChange);
+            document.addEventListener("mozpointerlockchange", pointerLockChange);
+            document.addEventListener("webkitpointerlockchange", pointerLockChange);
+
+            canvas.addEventListener("click", function () {
+                canvas.requestPointerLock();
+            });
+
+            // WASD controls
+            var onKeyDown = function (evt) {
+                switch (evt.keyCode) {
+                    case 87: // W
+                        scene.activeCamera.position.z += 0.1;
+                        break;
+                    case 83: // S
+                        scene.activeCamera.position.z -= 0.1;
+                        break;
+                    case 65: // A
+                        scene.activeCamera.position.x -= 0.1;
+                        break;
+                    case 68: // D
+                        scene.activeCamera.position.x += 0.1;
+                        break;
+                }
+            };
+
+            window.addEventListener("keydown", onKeyDown);
+        });
+    </script>
+</body>
+</html>
