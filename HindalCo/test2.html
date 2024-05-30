@@ -75,7 +75,7 @@ var createScene = function() {
     shadowGenerator.useExponentialShadowMap = true; // Optional: You can use different shadow maps for better quality
 
     // Import the GLB model
-    BABYLON.SceneLoader.Append("/Assets/", "HtU_Easy.glb", scene, function (scene) {
+    BABYLON.SceneLoader.Append("/Assets/", "HTU_Easy.glb", scene, function (scene) {
         console.log("Model loaded");
         updateMeshNames(scene);
         hideMesh(scene, "COLLISON");
